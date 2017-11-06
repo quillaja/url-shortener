@@ -1,7 +1,7 @@
 import datetime as dt
 import peewee as pw
 
-_DB = pw.Database('shorturl_test.db')
+_DB = pw.SqliteDatabase('shorturl_test.db')
 
 
 class Link(pw.Model):
@@ -18,6 +18,9 @@ class Link(pw.Model):
     def save(self):
         self.modified = dt.datetime.now()
         super().save()
+
+    class Meta:
+        database = _DB
 
 
 def create_database():
