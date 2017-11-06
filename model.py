@@ -1,7 +1,14 @@
 import datetime as dt
 import peewee as pw
+import random
 
 _DB = pw.SqliteDatabase('shorturl_test.db')
+
+
+def create_key(length: int=8) -> str:
+    b64_alphabet = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ$+"
+    key = random.choices(b64_alphabet, k=length)
+    return ''.join(key)
 
 
 class Link(pw.Model):
@@ -11,15 +18,15 @@ class Link(pw.Model):
     '''
     created = pw.DateTimeField(default=dt.datetime.now)
     modified = pw.DateTimeField()
-    key = pw.CharField()
-    url = pw.CharField()
+    key = pw.CharField(unique=True, default=create_key)
+    url = pw.CharField(unique=True)
     clicked = pw.IntegerField(default=0)
 
-    def save(self):
+    def save(self, *args, **kwargs):
         self.modified = dt.datetime.now()
-        super().save()
+        super().save(*args, **kwargs)
 
-    class Meta:
+    class Meta(object):
         database = _DB
 
 
