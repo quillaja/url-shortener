@@ -5,7 +5,32 @@ from model import Link
 app = Flask(__name__)
 
 
-@app.route('/urls', methods=['POST'])
+def get_link_info(key: str) -> dict:
+    result = Link.select().where(Link.key == key)
+    if len(result) == 0:
+        return None
+
+    lnk = result[0]
+    dtfmt = '%Y-%m-%dT%H:%M'
+
+    output = {
+        'url': lnk.url,
+        'key': lnk.key,
+        'clicked': lnk.clicked,
+        'modified': lnk.modified.strftime(dtfmt),
+        'created': lnk.created.strftime(dtfmt)
+    }
+
+    return output
+
+
+#################################################################
+# Does back-end api work.
+# Can be accessed through html-based client or programattically.
+#################################################################
+
+
+@app.route('/api/urls', methods=['POST'])
 def do_new():
     '''
     Used to get new shortened urls.
@@ -29,24 +54,28 @@ def do_new():
     abort(404)
 
 
-@app.route('/urls/<string:key>', methods=['GET'])
+@app.route('/api/urls/<string:key>', methods=['GET'])
 def do_link_info(key):
-    result = Link.select().where(Link.key == key)
-    if len(result) == 0:
+    output = get_link_info(key)
+    if output is None:
         abort(404)
 
-    lnk = result[0]
-    dtfmt = '%Y-%m-%dT%H:%M'
-
-    output = {
-        'url': lnk.url,
-        'key': lnk.key,
-        'clicked': lnk.clicked,
-        'modified': lnk.modified.strftime(dtfmt),
-        'created': lnk.created.strftime(dtfmt)
-    }
-
     return json.dumps(output)
+
+
+#########################################################################
+# Takes care of website front-end using templates
+#########################################################################
+
+
+@app.route('/', methods=['GET'])
+def do_landing_page():
+    pass
+
+
+@app.route('/url/<string:key>', methods=['GET'])
+def do_link_info_page(key):
+    pass
 
 
 @app.route('/<string:key>', methods=['GET'])
