@@ -1,5 +1,5 @@
 import json
-from flask import Flask, request, abort, redirect
+from flask import Flask, request, abort, redirect, render_template
 from model import Link
 
 app = Flask(__name__)
@@ -47,7 +47,7 @@ def do_new():
                 lnk = Link.create(url=url)
                 key = lnk.key
             else:
-                key = request[0].key
+                key = result[0].key
 
             return json.dumps({'key': key, 'url': url})
 
@@ -70,12 +70,17 @@ def do_link_info(key):
 
 @app.route('/', methods=['GET'])
 def do_landing_page():
-    pass
+    return render_template('landing-page.html')
 
 
-@app.route('/url/<string:key>', methods=['GET'])
+@app.route('/urls/<string:key>', methods=['GET'])
 def do_link_info_page(key):
-    pass
+    return render_template('info-page.html', output=get_link_info(key))
+
+
+#########################################################################
+# Does redirect... half front-end, half api
+#########################################################################
 
 
 @app.route('/<string:key>', methods=['GET'])

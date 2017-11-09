@@ -1,0 +1,9 @@
+{% extends "base.html" %} 
+{% block content %}
+<div class="info">
+    {% for k, v in output.items() %}
+    <div>{{ k }}</div>
+    <div>{{ v }}</div>
+    {% endfor %}
+</div>
+{% endblock %}
